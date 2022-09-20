@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "398821848013",
-    "project_id": "pharmatech-d7beb",
-    "storage_bucket": "pharmatech-d7beb.appspot.com"
+    "project_number": "329855915831",
+    "project_id": "newfinalyearproject-9eb77",
+    "storage_bucket": "newfinalyearproject-9eb77.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:398821848013:android:88b2a897772984bb7c4a84",
+        "mobilesdk_app_id": "1:329855915831:android:ab773e26d7188195cdecb2",
         "android_client_info": {
           "package_name": "com.example.finalyearproject"
         }
       },
       "oauth_client": [
         {
-          "client_id": "398821848013-4ii5poscr45len0kvrn3bih4m0uepdui.apps.googleusercontent.com",
+          "client_id": "329855915831-fsabdro9b81of215ugvngj0c906gn7uv.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCfALXSa8w9Jei0rvTp0cSCyXm_OV4MXAU"
+          "current_key": "AIzaSyDk1XKmf0PDCw_i7N_t2iQkJkiaTayAf2U"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "398821848013-4ii5poscr45len0kvrn3bih4m0uepdui.apps.googleusercontent.com",
+              "client_id": "329855915831-fsabdro9b81of215ugvngj0c906gn7uv.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

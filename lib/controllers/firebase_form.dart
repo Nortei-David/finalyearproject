@@ -1,34 +1,34 @@
-import 'package:finalyearproject/pages/signedUp.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:get/get.dart';
 
-class FirebaseForm extends GetxController {
-  final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
+// import 'package:firebase_auth/firebase_auth.dart';
+// import 'package:get/get.dart';
 
-  @override
-  void onInit() {
-    _firebaseAuth.authStateChanges();
-    // TODO: implement onInit
-    super.onInit();
-  }
+// class FirebaseForm extends GetxController {
+//   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
 
-  void signup(email, password) async {
-    await _firebaseAuth
-        .createUserWithEmailAndPassword(email: email, password: password)
-        .then((value) {
-      Get.to(SignedUP());
-    });
-  }
+//   @override
+//   void onInit() {
+//     _firebaseAuth.authStateChanges();
+//     // TODO: implement onInit
+//     super.onInit();
+//   }
 
-  void login(email, password) async {
-    await _firebaseAuth
-        .signInWithEmailAndPassword(email: email, password: password)
-        .then((value) {
-      Get.to(SignedUP());
-    });
-  }
+//   void signup(email, password) async {
+//     await _firebaseAuth
+//         .createUserWithEmailAndPassword(email: email, password: password)
+//         .then((value) {
+//       Get.to(SignedUP());
+//     });
+//   }
 
-  void signOut() async {
-    await _firebaseAuth.signOut();
-  }
-}
+//   void login(email, password) async {
+//     await _firebaseAuth
+//         .signInWithEmailAndPassword(email: email, password: password)
+//         .then((value) {
+//       Get.to(SignedUP());
+//     });
+//   }
+
+//   void signOut() async {
+//     await _firebaseAuth.signOut();
+//   }
+// }

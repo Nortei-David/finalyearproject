@@ -1,4 +1,4 @@
-import 'package:finalyearproject/controllers/firebase_form.dart';
+// import 'package:finalyearproject/controllers/firebase_form.dart';
 import 'package:finalyearproject/pages/login_page.dart';
 import 'package:finalyearproject/pages/sign_up_page.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +7,7 @@ import 'package:get/get.dart';
 class HomePage extends StatelessWidget {
   HomePage({Key? key}) : super(key: key);
 
-  final FirebaseForm firebaseForm = Get.find();
+
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +46,7 @@ class HomePage extends StatelessWidget {
                       Get.to(const SignUpPage());
                     },
                     child: const Text(
-                      "signUp",
+                      "SignUp",
                       style: TextStyle(fontSize: 17),
                     ),
                   ),

@@ -1,8 +1,14 @@
-import 'package:finalyearproject/controllers/firebase_form.dart';
+// import 'package:finalyearproject/controllers/firebase_form.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:finalyearproject/model/user_model.dart';
+import 'package:finalyearproject/pages/dashboard.dart';
+import 'package:finalyearproject/pages/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'login_page.dart';
-import 'package:finalyearproject/pages/signedup.dart';
+// import 'package:get/get.dart';
+// import 'package:firebase_core/firebase_core.dart';
+// import 'login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({Key? key}) : super(key: key);
@@ -12,212 +18,261 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final GlobalKey<FormState> _key = GlobalKey<FormState>();
-  FirebaseForm formController = Get.find();
-  String? _email, _password;
+  final _auth = FirebaseAuth.instance;
+  final _formKey = GlobalKey<FormState>();
+
+  final firstNameEditingController = TextEditingController();
+  final secondNameEditingController = TextEditingController();
+  final emailEditingController = TextEditingController();
+  final passwordEditingController = TextEditingController();
+  final confirmPasswordEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final firstNameField = TextFormField(
+      autofocus: false,
+      controller: firstNameEditingController,
+      keyboardType: TextInputType.name,
+      validator: ((value) {
+        RegExp regex = RegExp(r'^.{3,}$');
+        if (value!.isEmpty) {
+          return ('First Name field cannot be empty!');
+        }
+        if (!regex.hasMatch(value)) {
+          return ('Please Enter a valid Name(min of 3 characters)');
+        }
+        return null;
+      }),
+      onSaved: (value) {
+        firstNameEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.account_circle),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "First Name",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final secondNameField = TextFormField(
+      autofocus: false,
+      controller: secondNameEditingController,
+      keyboardType: TextInputType.name,
+      validator: ((value) {
+        if (value!.isEmpty) {
+          return ('Second Name field cannot be empty!');
+        }
+      }),
+      onSaved: (value) {
+        secondNameEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.account_circle),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Second Name",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final emailField = TextFormField(
+      autofocus: false,
+      controller: emailEditingController,
+      keyboardType: TextInputType.emailAddress,
+      validator: ((value) {
+        if (value!.isEmpty) {
+          return ('Please Enter Your Email');
+        }
+        // RegEx
+        if (!RegExp("^[a-zA-Z0-9+_.-]+@[a-zA-Z0-9.-]+.[a-z]").hasMatch(value)) {
+          return ('Please enter a valid email');
+        }
+        return null;
+      }),
+      onSaved: (value) {
+        emailEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.mail),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Email",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final passwordField = TextFormField(
+      autofocus: false,
+      controller: passwordEditingController,
+      obscureText: true,
+      validator: ((value) {
+        RegExp regex = RegExp(r'^.{8,}$');
+        if (value!.isEmpty) {
+          return ('Password is required!');
+        }
+        if (!regex.hasMatch(value)) {
+          return ('Please Enter a valid Password(min of 8 characters)');
+        }
+      }),
+      onSaved: (value) {
+        passwordEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.next,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.vpn_key),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Password",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final confirmPasswordField = TextFormField(
+      autofocus: false,
+      controller: confirmPasswordEditingController,
+      obscureText: true,
+      validator: (value) {
+        if (confirmPasswordEditingController.text !=
+            confirmPasswordEditingController.text) {
+          return "Password doesn't match.";
+        }
+        return null;
+      },
+      onSaved: (value) {
+        confirmPasswordEditingController.text = value!;
+      },
+      textInputAction: TextInputAction.done,
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.vpn_key),
+        contentPadding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        hintText: "Confirm Password",
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+      ),
+    );
+
+    final signupButton = Material(
+      elevation: 8,
+      borderRadius: BorderRadius.circular(30),
+      color: Colors.white,
+      child: MaterialButton(
+        padding: EdgeInsets.fromLTRB(20, 15, 20, 15),
+        minWidth: MediaQuery.of(context).size.width,
+        onPressed: () {
+          signUp(
+              emailEditingController.text, passwordEditingController.text);
+        },
+        child: Text(
+          'Register',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontSize: 20,
+              color: Colors.blueGrey,
+              fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+
     return Scaffold(
-      body: Form(
-        key: _key,
-        child: Container(
-          height: double.infinity,
-          width: double.infinity,
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFB0BEC5),
-                Color(0xFF90A4AE),
-                Color(0xFF78909C),
-                Color(0xFF607D8B),
-              ],
-            ),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.blueGrey,
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      'Sign Up',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 40.0,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        const Text(
-                          'Email',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black87,
-                                blurRadius: 6,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          height: 60,
-                          child: TextFormField(
-                            onSaved: (newValue) {
-                              _email = newValue;
-                            },
-                            keyboardType: TextInputType.emailAddress,
-                            style: const TextStyle(
-                              color: Colors.black87,
-                            ),
-                            decoration: const InputDecoration(
-                                border: InputBorder.none,
-                                contentPadding: EdgeInsets.only(top: 14),
-                                prefixIcon: Icon(
-                                  Icons.email,
-                                  color: Colors.blueGrey,
-                                ),
-                                hintText: 'Email',
-                                hintStyle: TextStyle(
-                                  color: Colors.black38,
-                                  fontStyle: FontStyle.italic,
-                                )),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        const Text(
-                          'Password',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Container(
-                          alignment: Alignment.centerLeft,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colors.black87,
-                                blurRadius: 6,
-                                offset: Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          height: 60,
-                          child: TextFormField(
-                            onSaved: ((newValue) {
-                              _password = newValue;
-                            }),
-                            obscureText: true,
-                            style: const TextStyle(
-                              color: Colors.black87,
-                            ),
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              contentPadding: EdgeInsets.only(top: 14),
-                              prefixIcon: Icon(
-                                Icons.vpn_key,
-                                color: Colors.blueGrey,
-                              ),
-                              hintText: 'Password',
-                              hintStyle: TextStyle(
-                                color: Colors.black38,
-                                fontStyle: FontStyle.italic,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Container(
-                      padding: const EdgeInsets.symmetric(vertical: 25),
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
-                          elevation: 5,
-                          padding: const EdgeInsets.all(15),
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15)),
-                        ),
-                        onPressed: () {
-                          _key.currentState!.save();
-                          formController.signup(_email, _password);
-                          Get.to(const SignedUP());
-                        },
-                        child: const Text(
-                          'sign up',
-                          style: TextStyle(
-                            color: Colors.blueGrey,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
+      body: Container(
+        height: double.infinity,
+        width: double.infinity,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              color: Colors.white,
+              child: Padding(
+                padding: const EdgeInsets.all(36.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      SizedBox(
+                        height: 180,
+                        child: Image.asset(
+                          'assets/images/icon.jpg',
+                          fit: BoxFit.contain,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 30),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        const Text(
-                          'Already have an Account? ',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () {
-                            Get.to(const LoginPage());
-                          },
-                          child: const Text(
-                            'LogIn',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                      SizedBox(height: 35.0),
+                      firstNameField,
+                      SizedBox(height: 25.0),
+                      secondNameField,
+                      SizedBox(height: 25.0),
+                      emailField,
+                      SizedBox(height: 25.0),
+                      passwordField,
+                      SizedBox(height: 25.0),
+                      confirmPasswordField,
+                      SizedBox(height: 25.0),
+                      signupButton,
+                      SizedBox(height: 10.0),
+                    ],
+                  ),
                 ),
               ),
-            ],
+            ),
           ),
         ),
       ),
     );
+  }
+
+  void signUp(String email, String password) async {
+    if (_formKey.currentState!.validate()) {
+      await _auth
+          .createUserWithEmailAndPassword(email: email, password: password)
+          .then((value) => {postDetailsToFireStore()})
+          .catchError((e) {
+        Fluttertoast.showToast(msg: e!.message);
+      });
+    }
+  }
+
+  postDetailsToFireStore() async {
+    // calling firestore, user model and sending values
+    FirebaseFirestore firebaseFirestore = FirebaseFirestore.instance;
+    User? user = _auth.currentUser;
+
+    UserModel userModel = UserModel();
+
+    userModel.email = user!.email;
+    userModel.uid = user.uid;
+    userModel.firstName = firstNameEditingController.text;
+    userModel.secondName = secondNameEditingController.text;
+
+    await firebaseFirestore
+        .collection('users')
+        .doc(user.uid)
+        .set(userModel.toMap());
+    Fluttertoast.showToast(msg: "Account creation successful");
+
+    Navigator.pushAndRemoveUntil((context),
+        MaterialPageRoute(builder: (context) => DashBoard()), (route) => false);
   }
 }
